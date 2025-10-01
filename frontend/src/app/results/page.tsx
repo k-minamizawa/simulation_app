@@ -12,33 +12,58 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // ダミーデータの設定（フェーズ5でAPI連携に置き換え）
-    const dummyResults: ScenarioResult[] = [
-      {
-        scenario_id: 1,
-        scenario_name: '現状維持シナリオ',
-        average_total_costs: 12500000,
-        average_delivery_rate: 0.75
-      },
-      {
-        scenario_id: 2,
-        scenario_name: '作業員増員シナリオ',
-        average_total_costs: 15800000,
-        average_delivery_rate: 0.92
-      },
-      {
-        scenario_id: 3,
-        scenario_name: '効率改善シナリオ',
-        average_total_costs: 11200000,
-        average_delivery_rate: 0.88
+    // 初回データ取得
+    const fetchInitialResults = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/results')
+        if (!response.ok) {
+          throw new Error(`HTTPエラー: ${response.status}`)
+        }
+        const data: ScenarioResult[] = await response.json()
+        console.log('初回データ取得成功:', data)
+        setResults(data)
+      } catch (error) {
+        console.error('初回データ取得エラー:', error)
+        // エラー時は空配列を設定
+        setResults([])
+      } finally {
+        setLoading(false)
       }
-    ]
+    }
 
-    // ローディング演出
-    setTimeout(() => {
-      setResults(dummyResults)
-      setLoading(false)
-    }, 500)
+    fetchInitialResults()
+
+    // WebSocket接続の確立
+    const ws = new WebSocket('ws://localhost:8000/ws/results')
+
+    ws.onopen = () => {
+      console.log('WebSocket接続が確立されました')
+    }
+
+    ws.onmessage = (event) => {
+      console.log('WebSocketメッセージ受信:', event.data)
+      try {
+        const data: ScenarioResult[] = JSON.parse(event.data)
+        console.log('結果データを更新:', data)
+        setResults(data)
+      } catch (error) {
+        console.error('WebSocketメッセージの解析エラー:', error)
+      }
+    }
+
+    ws.onerror = (error) => {
+      console.error('WebSocketエラー:', error)
+    }
+
+    ws.onclose = () => {
+      console.log('WebSocket接続が切断されました')
+    }
+
+    // クリーンアップ関数：コンポーネントがアンマウントされる時にWebSocketを閉じる
+    return () => {
+      console.log('WebSocket接続をクリーンアップします')
+      ws.close()
+    }
   }, [])
 
   const handleBackToStart = () => {

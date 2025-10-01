@@ -8,26 +8,34 @@ export default function StartPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null) // 文字列またはnullが入る型定義をした上でnullを代入
 
-  const handleStartSimulation = () => {
-    // TODO(human): シミュレーション開始のロジックを実装してください
-    
+  const handleStartSimulation = async () => {
     console.log('シミュレーション開始ボタンがクリックされました')
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
+
     try {
-      // ここでバックエンドAPIを呼び出す処理を追加します（フェーズ5で実装）
-    } catch (error) {
-      setError('シミュレーションの開始に失敗しました。');
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+      // バックエンドのシミュレーション開始APIを呼び出し
+      const response = await fetch('http://localhost:8000/api/simulations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
+      if (!response.ok) {
+        throw new Error(`HTTPエラー: ${response.status}`)
+      }
 
-    // 仮の遷移（デモ用）
-    setTimeout(() => {
+      const data = await response.json()
+      console.log('シミュレーション開始成功:', data)
+
+      // 成功したら結果閲覧画面へ遷移
       router.push('/results')
-    }, 1000)
+    } catch (error) {
+      console.error('シミュレーション開始エラー:', error)
+      setError('シミュレーションの開始に失敗しました。サーバーとの接続を確認してください。')
+      setIsLoading(false)
+    }
   }
 
   const containerStyles: React.CSSProperties = {
