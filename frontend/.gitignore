@@ -1,17 +1,4 @@
-reference
-old
-.env
-.env_backup
-
-
-
-# backend virtual environment
-backend/venv/
-backend/__pycache__/
-*.pyc
-*.pyo
-
-# frontend
+# dependencies
 /node_modules
 /.pnp
 .pnp.js
@@ -44,3 +31,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# package-lock.json (セキュリティのため、必要に応じてコミット)
+# package-lock.json
