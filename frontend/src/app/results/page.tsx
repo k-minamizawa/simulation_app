@@ -173,13 +173,22 @@ export default function ResultsPage() {
 
       <div style={gridStyles}>
         {results.map((result, index) => (
-          <Card
-            key={result.scenario_id}
-            title={result.scenario_name}
-            cost={result.average_total_costs}
-            deliveryRate={result.average_delivery_rate}
-            highlight={index === bestScenarioIndex}
-          />
+          <div key={result.scenario_id} style={{ position: 'relative' }}>
+            <Card
+              title={result.scenario_name}
+              cost={result.average_total_costs}
+              deliveryRate={result.average_delivery_rate}
+              highlight={index === bestScenarioIndex}
+            />
+            <div style={{ marginTop: 'var(--spacing-sm)' }}>
+              <Button
+                onClick={() => router.push(`/results/${result.scenario_id}`)}
+                variant="primary"
+              >
+                作業計画を表示
+              </Button>
+            </div>
+          </div>
         ))}
       </div>
 
